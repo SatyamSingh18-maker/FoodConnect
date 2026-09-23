@@ -10,9 +10,9 @@ the Flask app directly via its test client, no separate server needed.)
 """
 import streamlit as st
 from datetime import datetime, date, time
-import os
 import pandas as pd
-import requests
+
+from app import app as flask_app
 
 st.set_page_config(
     page_title="FoodConnect | Good Food, Less Waste",
@@ -21,7 +21,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-API_URL = os.getenv("FOODCONNECT_API_URL", "http://127.0.0.1:5000").rstrip("/")
 
 APP_NAME = "FoodConnect"
 TAGLINE = "Good Food. Less Waste. More Hope."
@@ -292,20 +291,45 @@ st.markdown(
 # ============================================================
 # HELPERS
 # ============================================================
+# Flask app runs inside the same Streamlit process
+flask_client = flask_app.test_client()
+
+
 def api_get(endpoint):
     try:
-        response = requests.get(f"{API_URL}{endpoint}", timeout=5)
-        return response.status_code, response.json()
+        response = flask_client.get(endpoint)
+
+        data = response.get_json(silent=True)
+
+        if data is None:
+            data = {}
+
+        return response.status_code, data
+
     except Exception as exc:
-        return 503, {"error": f"FoodConnect backend is currently unavailable: {exc}"}
+        return 503, {
+            "error": f"FoodConnect backend is currently unavailable: {exc}"
+        }
 
 
 def api_post(endpoint, payload=None):
     try:
-        response = requests.post(f"{API_URL}{endpoint}", json=payload or {}, timeout=8)
-        return response.status_code, response.json()
+        response = flask_client.post(
+            endpoint,
+            json=payload or {}
+        )
+
+        data = response.get_json(silent=True)
+
+        if data is None:
+            data = {}
+
+        return response.status_code, data
+
     except Exception as exc:
-        return 503, {"error": f"FoodConnect backend is currently unavailable: {exc}"}
+        return 503, {
+            "error": f"FoodConnect backend is currently unavailable: {exc}"
+        }
 
 
 def load_ngos():

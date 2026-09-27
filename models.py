@@ -54,7 +54,7 @@ class Donation(db.Model):
     notes = db.Column(db.Text, default="")
     photo_url = db.Column(db.String(255), default="")
 
-    # open -> accepted -> completed (or expired if deadline passes unclaimed)
+    # Open or accepted donations expire when the pickup deadline passes.
     status = db.Column(db.String(20), default="open")
     accepted_by_ngo_id = db.Column(db.Integer, db.ForeignKey("ngos.id"), nullable=True)
     accepted_at = db.Column(db.DateTime, nullable=True)

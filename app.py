@@ -12,7 +12,7 @@ Then the API is at http://localhost:5000
 """
 import uuid
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -21,9 +21,14 @@ from models import db, NGO, Donation
 from matching import rank_ngos_for_donation, expand_search
 
 
-def create_app(db_uri="sqlite:///foodconnect.db"):
+def create_app(db_uri=None):
     app = Flask(__name__)
-    app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
+    database_uri = db_uri or os.getenv("DATABASE_URL", "sqlite:///foodconnect.db")
+    if database_uri.startswith("postgres://"):
+        database_uri = "postgresql+psycopg://" + database_uri[len("postgres://"):]
+    elif database_uri.startswith("postgresql://"):
+        database_uri = "postgresql+psycopg://" + database_uri[len("postgresql://"):]
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
     CORS(app)  # allow the frontend (served from a different origin) to call this API
@@ -38,9 +43,27 @@ def create_app(db_uri="sqlite:///foodconnect.db"):
 
 def parse_dt(value, field_name):
     try:
-        return datetime.fromisoformat(value)
+        parsed = datetime.fromisoformat(value)
+        if parsed.tzinfo is not None:
+            return parsed.astimezone(timezone.utc).replace(tzinfo=None)
+        return parsed
     except (TypeError, ValueError):
         raise ValueError(f"'{field_name}' must be an ISO 8601 datetime, e.g. 2026-07-25T19:40:00")
+
+
+def expire_overdue_donations(now=None):
+    """Expire open or accepted donations whose pickup deadline has passed."""
+    now = now or datetime.now(timezone.utc).replace(tzinfo=None)
+    overdue = Donation.query.filter(
+        Donation.status.in_(("open", "accepted")),
+        Donation.pickup_deadline <= now,
+    ).all()
+    if not overdue:
+        return 0
+    for donation in overdue:
+        donation.status = "expired"
+    db.session.commit()
+    return len(overdue)
 
 
 def parse_coordinate(value, field_name, minimum, maximum):
@@ -140,6 +163,8 @@ def register_routes(app):
 
         if pickup_deadline <= cooked_time:
             return jsonify({"error": "pickup_deadline must be after cooked_time"}), 400
+        if pickup_deadline <= datetime.now(timezone.utc).replace(tzinfo=None):
+            return jsonify({"error": "pickup_deadline must be in the future"}), 400
 
         try:
             lat = parse_coordinate(data["lat"], "lat", -90, 90)
@@ -182,6 +207,7 @@ def register_routes(app):
 
     @app.get("/api/donations")
     def list_donations():
+        expire_overdue_donations()
         status = request.args.get("status")
         query = Donation.query
         if status:
@@ -194,6 +220,7 @@ def register_routes(app):
 
     @app.get("/api/donations/<int:donation_id>")
     def get_donation(donation_id):
+        expire_overdue_donations()
         donation = Donation.query.get(donation_id)
         if not donation:
             return jsonify({"error": "Donation not found"}), 404
@@ -212,6 +239,8 @@ def register_routes(app):
         donation = Donation.query.get(donation_id)
         if not donation:
             return jsonify({"error": "Donation not found"}), 404
+        expire_overdue_donations()
+        db.session.refresh(donation)
         if ensure_qr_token(donation):
             db.session.commit()
         if donation.status != "open":
@@ -243,6 +272,8 @@ def register_routes(app):
         donation = Donation.query.get(donation_id)
         if not donation:
             return jsonify({"error": "Donation not found"}), 404
+        expire_overdue_donations()
+        db.session.refresh(donation)
         if ensure_qr_token(donation):
             db.session.commit()
         if donation.status != "accepted":
@@ -260,9 +291,12 @@ def register_routes(app):
         data = request.get_json(force=True, silent=True) or {}
         already_notified = data.get("already_notified_ngo_ids", [])
 
+        expire_overdue_donations()
         donation = Donation.query.get(donation_id)
         if not donation:
             return jsonify({"error": "Donation not found"}), 404
+        if donation.status == "expired":
+            return jsonify({"error": "This donation has expired because its pickup deadline passed."}), 409
 
         ngos = NGO.query.all()
         matches, radius_used = expand_search(donation, ngos, set(already_notified))
@@ -277,15 +311,18 @@ def register_routes(app):
     # ---------- Analytics (matches the spec's dashboard) ----------
     @app.get("/api/analytics")
     def analytics():
+        expire_overdue_donations()
         total = Donation.query.count()
         completed = Donation.query.filter_by(status="completed").count()
         open_now = Donation.query.filter_by(status="open").count()
         accepted = Donation.query.filter_by(status="accepted").count()
+        expired = Donation.query.filter_by(status="expired").count()
         return jsonify({
             "total_donations": total,
             "completed": completed,
             "open": open_now,
             "accepted": accepted,
+            "expired": expired,
         })
 
 

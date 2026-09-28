@@ -33,30 +33,67 @@ STATUS_LABELS = {
 }
 
 st.set_page_config(page_title="FoodConnect", page_icon="🥬", layout="wide")
-st.markdown(
+st.html(
     """
     <style>
-      :root { color-scheme: dark; }
-      .stApp { background: #101a17; color: #f3f7f2; }
-      [data-testid="stSidebar"] { background: #0b1311; border-right: 1px solid #29362f; }
-      h1, h2, h3 { letter-spacing: -0.025em; }
-      .eyebrow { color: #b9f44b; font-size: .72rem; font-weight: 800; letter-spacing: .12em; }
-      .lead { color: #bdc8c1; font-size: 1.05rem; line-height: 1.65; max-width: 780px; }
-      .surface { border: 1px solid #29362f; border-radius: 10px; padding: 1rem 1.15rem; background: #17231e; margin: .4rem 0 1rem; }
-      .muted { color: #9ca9a2; font-size: .9rem; }
-      .status { display: inline-block; padding: .2rem .5rem; border-radius: 4px; font-size: .72rem; font-weight: 800; text-transform: uppercase; }
-      .status-open { background: #34452b; color: #d9f7a5; }
-      .status-accepted { background: #51452a; color: #ffe39b; }
-      .status-completed { background: #24483c; color: #a4e9d3; }
-      .status-expired { background: #552d29; color: #ffc5bb; }
-      div.stButton > button[kind="primary"] { background: #b9f44b; color: #101a17; border: 0; font-weight: 800; }
-      div.stButton > button { border-radius: 7px; }
-      [data-testid="stMetric"] { border: 1px solid #29362f; background: #17231e; padding: .85rem; border-radius: 8px; }
-      [data-testid="stMetricValue"] { color: #b9f44b; }
+            @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap');
+            :root {
+                color-scheme: dark !important;
+                --primary-color: #0066CC !important;
+                --background-color: #121212 !important;
+                --secondary-background-color: #1E1E1E !important;
+                --text-color: #FFFFFF !important;
+            }
+            html, body, [class*="css"] { font-family: 'Archivo', sans-serif; }
+                .stApp, [data-testid="stAppViewContainer"] { background: #121212 !important; color: #FFFFFF !important; }
+    [data-testid="stMainBlockContainer"] { max-width: 1380px; padding-top: 2rem; padding-bottom: 4rem; }
+                [data-testid="stSidebar"] { background: #171717 !important; border-right: 1px solid #303030; }
+                [data-testid="stHeader"] { background: #121212 !important; }
+            [data-testid="stSidebar"] > div:first-child { padding-top: 1.4rem; }
+            h1, h2, h3, h4, p, label { color: #FFFFFF; }
+            h1 { font-size: clamp(2.25rem, 4vw, 3.6rem); line-height: 1; }
+            h2 { font-size: 1.55rem; }
+            .brand-lockup { color: #FFFFFF; font-size: 1.15rem; font-weight: 900; letter-spacing: .02em; }
+    .brand-lockup span { color: #0066CC; }
+    .eyebrow { color: #0066CC; font-size: .69rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; margin: 0 0 .8rem; }
+            .lead { color: #C8C8C8; font-size: 1.05rem; line-height: 1.65; max-width: 780px; }
+            .page-hero { display: flex; align-items: center; justify-content: space-between; gap: 2rem; padding: clamp(1.5rem, 4vw, 3.2rem); margin-bottom: 1.6rem; border: 1px solid #303030; border-left: 5px solid #0066CC; border-radius: 8px; background: #1B1B1B; position: relative; overflow: hidden; }
+            .page-hero:after { content: ''; position: absolute; inset: 0 0 0 auto; width: 30%; opacity: .18; background: repeating-linear-gradient(135deg, transparent 0 18px, #0066CC 19px 20px, transparent 21px 38px); pointer-events: none; }
+            .page-hero-copy { position: relative; z-index: 1; max-width: 800px; }
+            .page-hero h1 { margin: 0 0 .85rem; }
+    .page-hero p:not(.eyebrow) { color: #C8C8C8; font-size: 1rem; line-height: 1.6; max-width: 740px; margin: 0; }
+    .hero-mark { position: relative; z-index: 1; flex: none; width: 78px; height: 78px; display: grid; place-items: center; border-radius: 8px; background: #0066CC; color: #FFFFFF; font-size: 2.2rem; font-weight: 900; }
+    .section-kicker { color: #0066CC; font-size: .68rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; margin: 1.3rem 0 .65rem; }
+    .surface { border: 1px solid #303030; border-radius: 8px; padding: 1.15rem 1.3rem; background: #1B1B1B; margin: .4rem 0 1rem; }
+    .muted { color: #B5B5B5; font-size: .9rem; }
+            .status { display: inline-block; padding: .25rem .55rem; border-radius: 4px; font-size: .69rem; font-weight: 800; text-transform: uppercase; }
+    .status-open { background: #173A28; color: #9EE3B5; }
+    .status-accepted { background: #142D48; color: #9BC9FF; }
+    .status-completed { background: #12382F; color: #91E0CA; }
+    .status-expired { background: #45201F; color: #FFB4AE; }
+    div.stButton > button[kind="primary"], button[kind="primaryFormSubmit"] { background: #0066CC; color: #FFFFFF; border: 0; font-weight: 700; }
+            div.stButton > button { border-radius: 7px; min-height: 2.6rem; }
+    div.stButton > button[kind="primary"]:hover { background: #0057AD; border-color: #0057AD; color: #FFFFFF; }
+    [data-testid="stMetric"] { border: 1px solid #303030; border-top: 3px solid #0066CC; background: #1B1B1B; padding: 1rem 1.1rem; border-radius: 8px; }
+    [data-testid="stMetricValue"] { color: #FFFFFF; }
+    [data-testid="stVerticalBlockBorderWrapper"] { background: #1B1B1B; border-color: #303030; border-radius: 8px; }
+            [data-testid="stTextInput"] input, [data-testid="stNumberInput"] input, [data-testid="stDateInput"] input, [data-testid="stTimeInput"] input, [data-testid="stSelectbox"] > div > div { border-radius: 6px; }
+            [data-testid="stRadio"] label { font-weight: 600; }
+    [data-testid="stSidebar"] [data-testid="stRadio"] label { padding: .32rem .5rem; border-radius: 5px; color: #E5E5E5; }
+    [data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) { background: #142D48; color: #A9D1FF; }
+    [data-testid="stForm"] { background: #1B1B1B; border: 1px solid #303030; border-radius: 8px; padding: 1.2rem 1.35rem; }
+            [data-testid="stAlert"] { border-radius: 7px; }
+            @media (max-width: 700px) { .page-hero { padding: 1.35rem; } .hero-mark { width: 54px; height: 54px; font-size: 1.5rem; } }
     </style>
     """,
-    unsafe_allow_html=True,
 )
+
+
+def render_page_hero(eyebrow, title, subtitle, mark="F"):
+    st.markdown(
+        f'<section class="page-hero"><div class="page-hero-copy"><p class="eyebrow">{eyebrow}</p><h1>{title}</h1><p>{subtitle}</p></div><div class="hero-mark">{mark}</div></section>',
+        unsafe_allow_html=True,
+    )
 
 
 def api_request(method, path, **kwargs):
@@ -127,11 +164,10 @@ def utc_iso(day_value, time_value, zone_name):
 
 
 def render_about():
-    st.markdown('<p class="eyebrow">ABOUT FOODCONNECT</p>', unsafe_allow_html=True)
-    st.title("Good food deserves a better destination.")
-    st.markdown(
-        '<p class="lead">FoodConnect connects surplus food with nearby NGOs so useful meals reach communities instead of going to waste.</p>',
-        unsafe_allow_html=True,
+    render_page_hero(
+        "About FoodConnect",
+        "Good food deserves a better destination.",
+        "We connect surplus food with nearby NGOs so useful meals reach communities instead of going to waste.",
     )
     st.divider()
     left, right = st.columns(2)
@@ -150,11 +186,11 @@ def render_about():
 
 
 def render_home(navigate):
-    st.markdown('<p class="eyebrow">SURPLUS FOOD RESCUE PLATFORM</p>', unsafe_allow_html=True)
-    st.title("Good food. Less waste. More hope.")
-    st.markdown(
-        '<p class="lead">Connect surplus food with NGOs. FoodConnect helps donors rescue usable food and makes pickup traceable and reliable.</p>',
-        unsafe_allow_html=True,
+    render_page_hero(
+        "Surplus food rescue platform",
+        "Good food. Less waste. More hope.",
+        "Connect surplus food with NGOs. FoodConnect makes rescue and pickup traceable and reliable.",
+        "↗",
     )
     total_col, open_col, accepted_col, completed_col = st.columns(4)
     analytics, error = get_api("/api/analytics")
@@ -166,7 +202,7 @@ def render_home(navigate):
         accepted_col.metric("Accepted", analytics["accepted"])
         completed_col.metric("Completed", analytics["completed"])
     st.divider()
-    st.subheader("Choose where to begin")
+    st.markdown('<p class="section-kicker">Choose where to begin</p>', unsafe_allow_html=True)
     cols = st.columns(3)
     for col, page, title, copy in zip(
         cols,
@@ -181,9 +217,12 @@ def render_home(navigate):
 
 
 def render_donation_form():
-    st.markdown('<p class="eyebrow">DONATE SURPLUS</p>', unsafe_allow_html=True)
-    st.title("Donate Food")
-    st.write("Share what you have and where it can be collected. Nearby NGOs are matched after posting.")
+    render_page_hero(
+        "Donate surplus",
+        "Share food. Start a rescue.",
+        "Tell us what is available and where it can be collected. Nearby NGOs are matched after posting.",
+        "+",
+    )
     if "last_donation" not in st.session_state:
         st.session_state.last_donation = None
 
@@ -253,9 +292,12 @@ def render_donation_form():
 
 
 def render_register_ngo():
-    st.markdown('<p class="eyebrow">JOIN THE RESCUE NETWORK</p>', unsafe_allow_html=True)
-    st.title("Register NGO")
-    st.write("Share your organization’s location and pickup capacity so donors can find you.")
+    render_page_hero(
+        "Join the rescue network",
+        "Register your NGO.",
+        "Share your organization’s location and pickup capacity so donors can find you.",
+        "N",
+    )
     with st.form("ngo-registration"):
         name_col, phone_col = st.columns(2)
         name = name_col.text_input("Organization name", max_chars=120)
@@ -286,8 +328,12 @@ def render_register_ngo():
 
 
 def render_directory():
-    st.markdown('<p class="eyebrow">COMMUNITY PARTNERS</p>', unsafe_allow_html=True)
-    st.title("NGO Directory")
+    render_page_hero(
+        "Community partners",
+        "NGO Directory",
+        "Find local organizations ready to collect and distribute surplus food.",
+        "◎",
+    )
     ngos, error = get_api("/api/ngos")
     if error:
         show_error(error)
@@ -311,9 +357,12 @@ def render_directory():
 
 
 def render_pickups():
-    st.markdown('<p class="eyebrow">NGO OPERATIONS</p>', unsafe_allow_html=True)
-    st.title("NGO Pickup")
-    st.write("Accept available donations and verify collection with the donor’s pickup token.")
+    render_page_hero(
+        "NGO operations",
+        "Pickups in motion.",
+        "Accept available donations and verify collection with the donor’s pickup token.",
+        "↗",
+    )
     ngos, ngo_error = get_api("/api/ngos")
     donations, donation_error = get_api("/api/donations")
     if ngo_error or donation_error:
@@ -397,8 +446,12 @@ def render_pickups():
 
 
 def render_history():
-    st.markdown('<p class="eyebrow">TRACEABLE FOOD RESCUE</p>', unsafe_allow_html=True)
-    st.title("Donation History")
+    render_page_hero(
+        "Traceable food rescue",
+        "Donation History",
+        "Follow every donation from posting through acceptance, pickup, or expiry.",
+        "↻",
+    )
     donations, error = get_api("/api/donations")
     if error:
         show_error(error)
@@ -421,8 +474,12 @@ def render_history():
 
 
 def render_analytics():
-    st.markdown('<p class="eyebrow">LIVE REPORTING</p>', unsafe_allow_html=True)
-    st.title("Analytics")
+    render_page_hero(
+        "Live reporting",
+        "Rescue impact, in view.",
+        "Track donation activity and pickup outcomes from the FoodConnect database.",
+        "%",
+    )
     analytics, error = get_api("/api/analytics")
     if error:
         show_error(error)
@@ -486,4 +543,5 @@ def main():
         render_analytics()
 
 
-main()
+if __name__ == "__main__":
+    main()

@@ -1,6 +1,6 @@
 # Streamlit Deployment
 
-FoodConnect now has a Streamlit frontend in `streamlit_frontend.py`. The Flask API must be hosted separately; Streamlit Community Cloud does not run `app.py` as a second web service.
+FoodConnect's Streamlit entry point is `streamlit_app.py`. The Flask API must be hosted separately; Streamlit Community Cloud does not run `app.py` as a second web service.
 
 ## Run Locally
 
@@ -9,7 +9,7 @@ Install dependencies, start the Flask API in one terminal, and start Streamlit i
 ```powershell
 pip install -r requirements.txt
 python app.py
-streamlit run streamlit_frontend.py
+streamlit run streamlit_app.py
 ```
 
 The local Streamlit app uses `http://127.0.0.1:5000` by default.
@@ -27,7 +27,7 @@ The backend converts `postgres://` and `postgresql://` URLs to the psycopg 3 SQL
 ## Deploy the Streamlit Frontend
 
 1. Push the repository to a GitHub account connected to Streamlit Community Cloud.
-2. Create a Streamlit app from that repository and set **Main file path** to `streamlit_frontend.py`.
+2. Create a Streamlit app from that repository and set **Main file path** to `streamlit_app.py`.
 3. Add this secret in the Streamlit app settings, replacing the value with the deployed Flask API origin:
 
 ```toml

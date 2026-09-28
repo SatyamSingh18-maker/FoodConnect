@@ -68,7 +68,7 @@ def api_request(method, path, **kwargs):
             **kwargs,
         )
     except requests.RequestException as exc:
-        return None, f"Cannot reach the FoodConnect API at {API_BASE}: {exc}"
+            return None, "FoodConnect service is unavailable. Please try again later."
 
     try:
         payload = response.json()
@@ -466,9 +466,6 @@ def main():
         st.markdown("## 🥬 FoodConnect")
         st.caption("Good food · Less waste · More hope")
         page = st.radio("Navigate", PAGES, key="page_nav", on_change=sync_navigation, label_visibility="collapsed")
-        st.divider()
-        st.caption("Connected API")
-        st.code(API_BASE, language=None)
 
     if page == "About Us":
         if render_about():
